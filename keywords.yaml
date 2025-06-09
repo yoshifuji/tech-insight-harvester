@@ -1,0 +1,40 @@
+# =============================================================================
+# Keywords Configuration - The Only File Humans Need to Edit
+# =============================================================================
+# Add keywords here to automatically trigger crawling, processing, and publishing
+
+keywords:
+  # AI & Machine Learning
+  - "large language models"
+  - "GPT-4"
+  - "transformer architecture"
+  - "vector embeddings"
+  - "RAG retrieval augmented generation"
+  
+  # Cloud & Infrastructure
+  - "kubernetes deployment"
+  - "serverless architecture"
+  - "microservices patterns"
+  - "docker containers"
+  - "AWS Lambda"
+  
+  # Development & DevOps
+  - "CI/CD pipeline"
+  - "infrastructure as code"
+  - "monitoring observability"
+  - "API design patterns"
+  - "GraphQL vs REST"
+  
+  # Data & Analytics
+  - "real-time analytics"
+  - "data pipeline architecture"
+  - "stream processing"
+  - "data mesh"
+  - "modern data stack"
+
+# Search configuration
+search_config:
+  max_results_per_keyword: 10
+  date_range: "week"  # week, month, year
+  language: "en"
+  safe_search: "moderate"
