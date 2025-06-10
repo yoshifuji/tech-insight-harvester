@@ -16,12 +16,15 @@ class MarkdownWriter:
     
     def __init__(self):
         self.config = Config()
-        self.docs_dir = DOCS_DIR
+        
+        # Create a new timestamped directory for this run
+        run_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        self.docs_dir = DOCS_DIR / run_timestamp
+
         self.templates_dir = TEMPLATES_DIR
         
         # Ensure directories exist
         self.docs_dir.mkdir(parents=True, exist_ok=True)
-        self.templates_dir.mkdir(parents=True, exist_ok=True)
         
         # Setup Jinja2 environment
         self.jinja_env = Environment(
@@ -202,6 +205,32 @@ Welcome to our automatically curated collection of technology articles and insig
         print(f"Created index file: {index_file}")
         return str(index_file)
 
+    def create_category_file(self) -> str:
+        """Creates a Docusaurus category file for the run directory."""
+        category_file_path = self.docs_dir / "_category_.json"
+        
+        run_timestamp_str = self.docs_dir.name
+        try:
+            dt = datetime.strptime(run_timestamp_str, '%Y%m%d_%H%M%S')
+            category_label = dt.strftime('%Y-%m-%d %H:%M')
+        except ValueError:
+            category_label = run_timestamp_str.replace('_', ' ')
+
+        category_data = {
+            "label": f"Crawl: {category_label}",
+            "position": -int(datetime.now().timestamp()),
+            "link": {
+                "type": "doc",
+                "id": "intro"
+            }
+        }
+
+        with open(category_file_path, 'w', encoding='utf-8') as f:
+            json.dump(category_data, f, indent=2)
+            
+        print(f"Created category file: {category_file_path}")
+        return str(category_file_path)
+
 def main():
     """Main markdown writer execution"""
     try:
@@ -217,18 +246,25 @@ def main():
         
         articles = data.get('articles', [])
         
+        if not articles:
+            print("No articles to process. Markdown generation skipped.")
+            return
+
         # Create Markdown files
         created_files = writer.process_articles(articles)
         
         # Create index file
         index_file = writer.create_index_file(articles)
         
+        # Create category file for Docusaurus
+        category_file = writer.create_category_file()
+        
         print(f"Markdown generation completed successfully!")
         print(f"Created {len(created_files)} article files")
         print(f"Index file: {index_file}")
         
         # Save file list for commit
-        file_list = created_files + [index_file]
+        file_list = created_files + [index_file, category_file]
         with open(OUTPUT_DIR / "created_files.json", 'w') as f:
             json.dump({
                 'created_at': datetime.utcnow().isoformat(),

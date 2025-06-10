@@ -79,10 +79,13 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 SUPABASE_URL = os.getenv('SUPABASE_URL')
 SUPABASE_SERVICE_ROLE_KEY = os.getenv('SUPABASE_SERVICE_ROLE_KEY')
 
+# Determine project root. This file is in src/, so root is its parent directory.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 # File paths
-DOCS_DIR = Path("docs/auto")
-TEMPLATES_DIR = Path("templates")
-OUTPUT_DIR = Path("output")
+DOCS_DIR = PROJECT_ROOT / "docs" / "auto"
+TEMPLATES_DIR = PROJECT_ROOT / "templates"
+OUTPUT_DIR = PROJECT_ROOT / "output"
 
 # Ensure directories exist
 DOCS_DIR.mkdir(parents=True, exist_ok=True)
