@@ -5,18 +5,19 @@
 
 keywords:
   # AI & Machine Learning
-  - "large language models"
-  - "GPT-4"
+  - "Gemini Pro"
   - "transformer architecture"
   - "vector embeddings"
   - "RAG retrieval augmented generation"
-  
+  - "ChatGPT"
+  - "Claude"
+  - "Gemini"
+  - "LLM"
   # Cloud & Infrastructure
   - "kubernetes deployment"
   - "serverless architecture"
   - "microservices patterns"
   - "docker containers"
-  - "AWS Lambda"
   
   # Development & DevOps
   - "CI/CD pipeline"
@@ -36,5 +37,5 @@ keywords:
 search_config:
   max_results_per_keyword: 10
   date_range: "week"  # week, month, year
-  language: "en"
+  language: "ja"
   safe_search: "moderate"
