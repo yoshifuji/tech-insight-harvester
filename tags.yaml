@@ -1,0 +1,82 @@
+# =============================================================================
+# Hierarchical Tag Taxonomy for LLM Classification
+# =============================================================================
+# This defines the tag structure that the LLM will use to categorize articles
+
+ai:
+  - llm
+  - embeddings
+  - transformers
+  - neural-networks
+  - computer-vision
+  - nlp
+  - machine-learning
+  - deep-learning
+  - generative-ai
+  - rag
+
+cloud:
+  - aws
+  - gcp
+  - azure
+  - kubernetes
+  - docker
+  - serverless
+  - microservices
+  - containers
+  - infrastructure
+  - devops
+
+development:
+  - api-design
+  - architecture
+  - patterns
+  - best-practices
+  - frameworks
+  - libraries
+  - testing
+  - security
+  - performance
+  - scalability
+
+data:
+  - analytics
+  - pipelines
+  - streaming
+  - databases
+  - warehousing
+  - visualization
+  - etl
+  - real-time
+  - big-data
+  - data-mesh
+
+frontend:
+  - react
+  - vue
+  - angular
+  - javascript
+  - typescript
+  - css
+  - html
+  - ui-ux
+  - responsive
+  - accessibility
+
+backend:
+  - nodejs
+  - python
+  - java
+  - golang
+  - rust
+  - databases
+  - caching
+  - queues
+  - messaging
+  - distributed-systems
+
+# Tag selection rules for LLM
+tag_rules:
+  max_tags_per_article: 1
+  prefer_specific_over_general: true
+  fallback_tag: "development"

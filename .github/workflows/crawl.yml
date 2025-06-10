@@ -1,0 +1,144 @@
+name: Daily Content Crawl and Processing
+
+on:
+  schedule:
+    - cron: '0 21 * * *'  # 06:00 JST daily
+  workflow_dispatch:  # Allow manual trigger
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  crawl-and-process:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install chromium
+    
+    - name: Run crawler
+      env:
+        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        GOOGLE_CX_ID: ${{ secrets.GOOGLE_CX_ID }}
+      run: |
+        cd src
+        python crawler.py
+    
+    - name: Run content reader
+      env:
+        MERCURY_API_KEY: ${{ secrets.MERCURY_API_KEY }}
+      run: |
+        cd src
+        python reader.py
+    
+    - name: Run LLM processing
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        cd src
+        python llm.py
+    
+    - name: Generate Markdown files
+      run: |
+        cd src
+        python md_writer.py
+    
+    - name: Check for new content
+      id: check_changes
+      run: |
+        if [ -n "$(git status --porcelain docs/auto/)" ]; then
+          echo "changes=true" >> $GITHUB_OUTPUT
+          echo "New content detected"
+        else
+          echo "changes=false" >> $GITHUB_OUTPUT
+          echo "No new content"
+        fi
+    
+    - name: Create Pull Request
+      if: steps.check_changes.outputs.changes == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        # Configure git
+        git config --local user.email "docs-ai-bot@users.noreply.github.com"
+        git config --local user.name "docs-ai-bot"
+        
+        # Create branch name with timestamp
+        BRANCH_NAME="auto-content-$(date +%Y%m%d-%H%M%S)"
+        
+        # Create and switch to new branch
+        git checkout -b "$BRANCH_NAME"
+        
+        # Add all new/modified files in docs/auto/
+        git add docs/auto/
+        
+        # Count new articles
+        NEW_ARTICLES=$(git diff --cached --name-only | grep -c "\.md$" || echo "0")
+        
+        # Commit changes
+        git commit -m "🤖 Add $NEW_ARTICLES new tech articles
+
+        Automated content update from tech-insight-harvester pipeline:
+        - Crawled latest articles based on keywords.yaml
+        - Processed content with LLM for SEO optimization
+        - Generated Docusaurus-compatible Markdown files
+        
+        Generated on: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+        
+        # Push branch
+        git push origin "$BRANCH_NAME"
+        
+        # Create PR using GitHub CLI
+        gh pr create \
+          --title "🤖 Daily Tech Content Update - $NEW_ARTICLES articles" \
+          --body "## Automated Content Update
+
+        This PR contains $NEW_ARTICLES new technology articles automatically curated and processed by the tech-insight-harvester pipeline.
+
+        ### What's included:
+        - ✅ Fresh articles crawled from web based on keywords.yaml
+        - ✅ Content extracted and cleaned
+        - ✅ LLM-generated SEO titles and summaries
+        - ✅ Automatic tagging and categorization
+        - ✅ Docusaurus-compatible Markdown format
+
+        ### Review checklist:
+        - [ ] Content quality looks good
+        - [ ] No inappropriate or off-topic articles
+        - [ ] Markdown formatting is correct
+        - [ ] Ready to merge and publish
+
+        **Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+        **Pipeline:** tech-insight-harvester v1.0" \
+          --head "$BRANCH_NAME" \
+          --base main \
+          --label "automated-content" \
+          --label "documentation"
+
+    - name: Upload processing artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: processing-outputs
+        path: |
+          output/*.json
+        retention-days: 7
