@@ -29,10 +29,37 @@ pip install -r requirements.txt
 
 ### 2. Configure Environment
 
-Copy `.env.example` to `.env` and fill in your API keys:
+Create a `.env` file in the root of the project and add your API keys.
 
-```bash
-cp .env.example .env
+Here is an example of what your `.env` file should look like:
+
+```
+# Google Custom Search API
+# Used for crawling articles from Google Search.
+# Create a new project here: https://console.cloud.google.com/
+# Enable "Custom Search API" in the project's API & Services.
+# Get API Key from "Credentials" page.
+GOOGLE_API_KEY="your_google_api_key"
+
+# Create a Programmable Search Engine here: https://programmablesearchengine.google.com/
+# Get the "Search engine ID" from the overview page.
+GOOGLE_CX_ID="your_google_cx_id"
+
+# Mercury Parser API (optional)
+# Used for extracting full content from articles.
+# Get a free API key from https://mercury.parser.sh/
+MERCURY_API_KEY="your_mercury_api_key"
+
+# OpenAI API (optional)
+# Used for article classification and summarization.
+# Get an API key from https://platform.openai.com/api-keys
+OPENAI_API_KEY="your_openai_api_key"
+
+# Supabase (optional)
+# Used for storing and managing crawled data.
+# Create a project on https://supabase.com/
+SUPABASE_URL="your_supabase_url"
+SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 ```
 
 Required API keys:
