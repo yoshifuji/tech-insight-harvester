@@ -71,6 +71,7 @@ output/
 *.json
 !package.json
 !package-lock.json
+!.lighthouserc.json
 
 # Temporary files
 tmp/
