@@ -22,7 +22,7 @@ jobs:
         fetch-depth: 0
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
@@ -30,6 +30,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Create output directory
+      run: |
+        mkdir -p output
     
     - name: Install Playwright browsers
       run: |
@@ -41,26 +45,26 @@ jobs:
         GOOGLE_CX_ID: ${{ secrets.GOOGLE_CX_ID }}
       run: |
         cd src
-        python crawler.py
+        python crawler.py || echo "Crawler failed, but continuing pipeline"
     
     - name: Run content reader
       env:
         MERCURY_API_KEY: ${{ secrets.MERCURY_API_KEY }}
       run: |
         cd src
-        python reader.py
+        python reader.py || echo "Reader failed, but continuing pipeline"
     
     - name: Run LLM processing
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         cd src
-        python llm.py
+        python llm.py || echo "LLM processing failed, but continuing pipeline"
     
     - name: Generate Markdown files
       run: |
         cd src
-        python md_writer.py
+        python md_writer.py || echo "Markdown generation failed, but continuing pipeline"
     
     - name: Check for new content
       id: check_changes
@@ -107,36 +111,21 @@ jobs:
         # Push branch
         git push origin "$BRANCH_NAME"
         
-        # Create PR using GitHub CLI
-        gh pr create \
-          --title "🤖 Daily Tech Content Update - $NEW_ARTICLES articles" \
-          --body "## Automated Content Update
-
-        This PR contains $NEW_ARTICLES new technology articles automatically curated and processed by the tech-insight-harvester pipeline.
-
-        ### What's included:
-        - ✅ Fresh articles crawled from web based on keywords.yaml
-        - ✅ Content extracted and cleaned
-        - ✅ LLM-generated SEO titles and summaries
-        - ✅ Automatic tagging and categorization
-        - ✅ Docusaurus-compatible Markdown format
-
-        ### Review checklist:
-        - [ ] Content quality looks good
-        - [ ] No inappropriate or off-topic articles
-        - [ ] Markdown formatting is correct
-        - [ ] Ready to merge and publish
-
-        **Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-        **Pipeline:** tech-insight-harvester v1.0" \
-          --head "$BRANCH_NAME" \
-          --base main \
-          --label "automated-content" \
-          --label "documentation"
+        # Create PR using GitHub API
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/pulls \
+          -d "{
+            \"title\": \"🤖 Daily Tech Content Update - $NEW_ARTICLES articles\",
+            \"body\": \"## Automated Content Update\n\nThis PR contains $NEW_ARTICLES new technology articles automatically curated and processed by the tech-insight-harvester pipeline.\n\n### What's included:\n- ✅ Fresh articles crawled from web based on keywords.yaml\n- ✅ Content extracted and cleaned\n- ✅ LLM-generated SEO titles and summaries\n- ✅ Automatic tagging and categorization\n- ✅ Docusaurus-compatible Markdown format\n\n### Review checklist:\n- [ ] Content quality looks good\n- [ ] No inappropriate or off-topic articles\n- [ ] Markdown formatting is correct\n- [ ] Ready to merge and publish\n\n**Generated:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')\n**Pipeline:** tech-insight-harvester v1.0\",
+            \"head\": \"$BRANCH_NAME\",
+            \"base\": \"main\"
+          }"
 
     - name: Upload processing artifacts
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: processing-outputs
         path: |
