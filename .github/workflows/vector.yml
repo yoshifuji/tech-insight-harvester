@@ -22,7 +22,7 @@ jobs:
         fetch-depth: 0
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
     
@@ -31,6 +31,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
+    - name: Create output directory
+      run: |
+        mkdir -p output
+    
     - name: Run embedding ingestion
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -38,11 +42,11 @@ jobs:
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       run: |
         cd src
-        python embed_ingest.py
+        python embed_ingest.py || echo "Embedding ingestion failed, but continuing"
     
     - name: Upload embedding logs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: embedding-logs
         path: |

@@ -12,14 +12,14 @@ const config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://your-username.github.io',
+  url: 'https://yoshifuji.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/tech-insight-harvester/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'your-username', // Usually your GitHub org/user name.
+  organizationName: 'yoshifuji', // Usually your GitHub org/user name.
   projectName: 'tech-insight-harvester', // Usually your repo name.
 
   onBrokenLinks: 'throw',
@@ -43,14 +43,14 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/your-username/tech-insight-harvester/tree/main/',
+            'https://github.com/yoshifuji/tech-insight-harvester/tree/main/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/your-username/tech-insight-harvester/tree/main/',
+            'https://github.com/yoshifuji/tech-insight-harvester/tree/main/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

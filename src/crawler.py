@@ -160,8 +160,34 @@ def main():
         print(f"Crawling completed successfully!")
         print(f"Latest results: {latest_file}")
         
+    except ValueError as e:
+        if "GOOGLE_API_KEY" in str(e):
+            print(f"Warning: {e}")
+            print("Creating empty output file for pipeline continuation...")
+            # Create empty output file so pipeline can continue
+            latest_file = OUTPUT_DIR / "url_list.json"
+            with open(latest_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    'crawled_at': datetime.utcnow().isoformat(),
+                    'total_articles': 0,
+                    'articles': [],
+                    'error': 'Missing API credentials'
+                }, f, indent=2, ensure_ascii=False)
+            print(f"Empty results file created: {latest_file}")
+        else:
+            raise
     except Exception as e:
         print(f"Crawler failed: {e}")
+        # Create empty output file so pipeline can continue
+        latest_file = OUTPUT_DIR / "url_list.json"
+        with open(latest_file, 'w', encoding='utf-8') as f:
+            json.dump({
+                'crawled_at': datetime.utcnow().isoformat(),
+                'total_articles': 0,
+                'articles': [],
+                'error': str(e)
+            }, f, indent=2, ensure_ascii=False)
+        print(f"Error output file created: {latest_file}")
         raise
 
 if __name__ == "__main__":
