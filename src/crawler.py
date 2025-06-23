@@ -142,7 +142,11 @@ class TechCrawler:
         return str(output_file)
 
 def main():
-    """Main crawler execution"""
+    """
+    Runs the full crawling workflow, saving results and handling errors to ensure pipeline continuity.
+    
+    This function instantiates the crawler, retrieves articles for all configured keywords, and saves the results to timestamped and "latest" JSON files. If API credentials are missing or any error occurs, it creates an empty output file with error metadata to allow downstream processes to continue.
+    """
     try:
         crawler = TechCrawler()
         results = crawler.crawl_all_keywords()
